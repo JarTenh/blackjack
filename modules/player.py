@@ -6,6 +6,8 @@ Player attributes:
 - Hand, as what cards does the player have
 '''
 
+from modules.card import Card
+
 class Player():
     '''
     Player class. Has an attribute credits, default value 100 $.
@@ -33,8 +35,23 @@ class Player():
         else:
             return -1
 
-    def deal(self, deck):
+    def add_card(self, card):
         '''
-        Deal a random card from the deck to the player's hand.
+        Add a card to player's hand.
+        Use Card class!
         '''
-        pass
+
+        if type(card) == Card:
+            self.hand[card.value_str + ' of ' + card.suite] = card.value_int
+
+    def get_hand_value(self):
+        '''
+        Returns the total value of player's card.
+        '''
+        if len(self.hand) > 0:
+            return sum(self.hand.values)
+        return 0
+
+    def print_cards(self):
+        for card in self.hand:
+            print(card)

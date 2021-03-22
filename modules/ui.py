@@ -1,7 +1,30 @@
 import sys
+from time import sleep
 from modules.clear_screen import clear
+from modules.session import Session
+from modules.player import Player
+from modules.deck import Deck
 
-class ui():
+index = {
+    'Ace': 11,
+    'Two': 2,
+    'Three': 3,
+    'Four': 4,
+    'Five': 5,
+    'Six': 6,
+    'Seven': 7,
+    'Eight': 8,
+    'Nine': 9,
+    'Ten': 10,
+    'Jack': 10,
+    'Queen': 10,
+    'King': 10
+}
+
+suites = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
+
+
+class UI():
     '''
     Class for UI for the blackjack game.
 
@@ -44,3 +67,39 @@ class ui():
             return
         except KeyboardInterrupt:
             sys.exit()
+
+    def ask_player_name(self):
+        name = input('Please enter your name: ')
+        print()
+        print(f'Good luck with the game, {name}!')
+        sleep(1)
+        return name
+
+    def play_game(self, player_name):
+
+        session = Session(Player(player_name), Deck(index, suites))
+
+        while True:
+            clear()
+            print('**********************')
+            print('Playing blackjack!')
+            print('**********************')
+            print()
+            print(f'Player: {session.player.name} \
+                \t\t\t\t\tPlayer wins: {session._player_wins}')
+            print(f'Credits: $ {session.player.credits}\
+                \t\t\t\t\tComputer wins: {session._dealer_wins}')
+            print()
+            print('\t\tPlayer\'s hand:')
+            session.player.print_cards()
+            print()
+            try:
+                command = input('What do you want to do: (D)eal cards, (B)et or (Q)uit? ')
+                if command == 'Q' or command == 'q':
+                    break
+                if command == 'D' or command == 'd':
+                    session.start_next_game()
+            except KeyboardInterrupt:
+                sys.exit()
+            except:
+                print('Something went wrong.')
