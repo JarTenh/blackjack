@@ -32,13 +32,14 @@ class UI():
     '''
 
     def __init__(self) -> None:
-        return
+        self.session = None
 
     def intro(self):
         '''
         Print the welcome message to the user.
         '''
 
+        clear()
         print('######################')
         print('#                    #')
         print('#      BLACKJACK     #')
@@ -69,37 +70,104 @@ class UI():
             sys.exit()
 
     def ask_player_name(self):
+        '''
+        Simple function to ask a player's name.
+        '''
         name = input('Please enter your name: ')
         print()
         print(f'Good luck with the game, {name}!')
         sleep(1)
         return name
 
-    def play_game(self, player_name):
+    def print_header(self):
+        '''
+        Prints the window header on the screen, containing:
+        - Playing blackjack!
+        - Num of player and dealer wins
 
-        session = Session(Player(player_name), Deck(index, suites))
+        Takes a Session object as a parameter.
+        '''
+
+        print('**********************')
+        print('Playing blackjack!')
+        print('**********************')
+        print()
+        print(f'Player: {self.session.player.name} \
+            \t\t\t\t\tPlayer wins: {self.session._player_wins}')
+        print(f'Credits: $ {self.session.player.credits}\
+            \t\t\t\t\tDealer wins: {self.session._dealer_wins}')
+
+    def print_hands(self, player):
+        '''
+        Prints the cards in player's or dealers hand.
+        Accepts a Player class as a parameter.
+        '''
+
+        if type(player) == Player:
+            print(f'\t\t{player.name}\'s hand:'.upper())
+            print()
+            player.print_cards()
+        print()
+        print(f'Total value of cards: {player.get_hand_value()}')
+
+    def start_session(self, player_name):
+        '''
+        This function starts a game Session. A session can contain
+        multiple games, started with play_single_game method.
+        '''
+
+        self.session = Session(player_name, Deck(index, suites))
 
         while True:
             clear()
-            print('**********************')
-            print('Playing blackjack!')
-            print('**********************')
-            print()
-            print(f'Player: {session.player.name} \
-                \t\t\t\t\tPlayer wins: {session._player_wins}')
-            print(f'Credits: $ {session.player.credits}\
-                \t\t\t\t\tComputer wins: {session._dealer_wins}')
-            print()
-            print('\t\tPlayer\'s hand:')
-            session.player.print_cards()
+            self.print_header()
             print()
             try:
                 command = input('What do you want to do: (D)eal cards, (B)et or (Q)uit? ')
                 if command == 'Q' or command == 'q':
                     break
                 if command == 'D' or command == 'd':
-                    session.start_next_game()
+                    self.play_single_game()
             except KeyboardInterrupt:
                 sys.exit()
             except:
                 print('Something went wrong.')
+
+    def play_single_game(self):
+        '''
+        Play a single game of blackjack. This function should be run
+        only after a Session has been already created.
+        '''
+        self.session.start_next_game()
+
+        while True:
+            clear()
+            self.print_header()
+            print()
+            self.print_hands(self.session.player)
+            print('\n')
+            self.print_hands(self.session.dealer)
+            print()
+            if self.session.player_busted():
+                self.session.game_winner(2)
+                print('YOU\'RE BUSTED!')
+                print()
+                while True:
+                    play_again = input('Play again (y/n)? ')
+                    if play_again == 'Y' or play_again == 'y':
+                        break
+                    elif play_again == 'N' or play_again == 'n':
+                        clear()
+                        raise KeyboardInterrupt
+                break
+            print('What do you want to do? ')
+            command = input('(H)it, (S)tay or (F)old? ')
+            if command == 'H' or command == 'h':
+                self.session.player.add_card(self.session.deck.deal_card())
+            elif command == 'S' or command == 's':
+                pass
+            elif command == 'F' or command == 'f':
+                pass
+            else:
+                print('Please provide a valid input!')
+                sleep(1)

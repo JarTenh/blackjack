@@ -4,7 +4,6 @@ are recorded.
 '''
 
 from modules.player import Player
-from time import sleep
 
 class Session():
     '''
@@ -13,7 +12,7 @@ class Session():
     Give a Player class as an argument to properly setup the session.
     '''
 
-    def __init__(self, player, deck):
+    def __init__(self, player_name, deck):
         '''
         Session to record played games.
 
@@ -23,8 +22,8 @@ class Session():
         self._num_of_games = 0
         self._player_wins = 0
         self._dealer_wins = 0
-        self.player = player
-        self.ai = Player('Dealer')
+        self.player = Player(player_name)
+        self.dealer = Player('Dealer')
         self.deck = deck
 
     def game_winner(self, winner):
@@ -44,9 +43,33 @@ class Session():
         '''
         Starts the next blackjack game.
 
-        Return a tuple of cards
+        Increases the games played by one, and 
+        adds cards to the player's and the dealer's hand.
         '''
+        self.player.clear_hand()
+        self.dealer.clear_hand()
+        self.deck.reset_deck()
         self._num_of_games += 1
         for _ in range(2):
             self.player.add_card(self.deck.deal_card())
-        self.ai.add_card(self.deck.deal_card())
+            self.dealer.add_card(self.deck.deal_card())
+
+    def player_busted(self):
+        '''
+        Checks if the human player busted, that is 
+        his/her hand value is over 21.
+        '''
+
+        if self.player.get_hand_value() > 21:
+            return True
+        return False
+
+    def dealer_busted(self):
+        '''
+        Checks if the human player busted, that is 
+        his/her hand value is over 21.
+        '''
+
+        if self.dealer.get_hand_value() > 21:
+            return True
+        return False

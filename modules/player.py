@@ -7,6 +7,7 @@ Player attributes:
 '''
 
 from modules.card import Card
+import re
 
 class Player():
     '''
@@ -49,9 +50,22 @@ class Player():
         Returns the total value of player's card.
         '''
         if len(self.hand) > 0:
-            return sum(self.hand.values)
+            hand_sum = sum(self.hand.values())
+            if hand_sum > 21:
+                # Check for aces in hand
+                aces_list = [i for i in self.hand.keys() if 'Ace' in i]
+                if len(aces_list) > 0:
+                    for x in aces_list:
+                        if self.hand[x] == 11:
+                            self.hand[x] = 1
+                            break
+                    hand_sum = sum(self.hand.values())
+            return hand_sum
         return 0
 
     def print_cards(self):
         for card in self.hand:
-            print(card)
+            print('\t' + card)
+
+    def clear_hand(self):
+        self.hand.clear()
