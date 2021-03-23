@@ -73,10 +73,16 @@ class UI():
         '''
         Simple function to ask a player's name.
         '''
-        name = input('Please enter your name: ')
-        print()
-        print(f'Good luck with the game, {name}!')
-        sleep(1)
+
+        name = ''
+
+        try:
+            name = input('Please enter your name: ')
+            print()
+            print(f'Good luck with the game, {name}!')
+            sleep(1)
+        except KeyboardInterrupt:
+            sys.exit(0)
         return name
 
     def print_header(self):
@@ -88,14 +94,14 @@ class UI():
         Takes a Session object as a parameter.
         '''
 
-        print('**********************')
-        print('Playing blackjack!')
+        print(f'**********************' \
+            f'\t\t\t\t\tPlayer wins: {self.session._player_wins}')
+        print('Playing blackjack!' \
+            f'\t\t\t\t\tDealer wins: {self.session._dealer_wins}')
         print('**********************')
         print()
-        print(f'Player: {self.session.player.name} \
-            \t\t\t\t\tPlayer wins: {self.session._player_wins}')
-        print(f'Credits: $ {self.session.player.credits}\
-            \t\t\t\t\tDealer wins: {self.session._dealer_wins}')
+        print(f'Player: {self.session.player.name}')
+        print(f'Credits: $ {self.session.player.credits}')
 
     def print_hands(self, player):
         '''
@@ -125,6 +131,7 @@ class UI():
             try:
                 command = input('What do you want to do: (D)eal cards, (B)et or (Q)uit? ')
                 if command == 'Q' or command == 'q':
+                    clear()
                     break
                 if command == 'D' or command == 'd':
                     self.play_single_game()
@@ -150,8 +157,9 @@ class UI():
             print()
             if self.session.player_busted():
                 self.session.game_winner(2)
-                print('YOU\'RE BUSTED!')
+                print('YOU\'RE BUSTED! DEALER WINS!')
                 print()
+                sleep(2)
                 while True:
                     play_again = input('Play again (y/n)? ')
                     if play_again == 'Y' or play_again == 'y':
@@ -161,13 +169,57 @@ class UI():
                         raise KeyboardInterrupt
                 break
             print('What do you want to do? ')
-            command = input('(H)it, (S)tay or (F)old? ')
+            command = input('(H)it, (S)tay? or (Q)uit game? ')
             if command == 'H' or command == 'h':
                 self.session.player.add_card(self.session.deck.deal_card())
             elif command == 'S' or command == 's':
-                pass
-            elif command == 'F' or command == 'f':
-                pass
+                if self.session.player.get_hand_value() <= self.session.dealer.get_hand_value():
+                    print()
+                    print('\tDEALER WINS!')
+                    print()
+                    sleep(2)
+                    break
+                else:
+                    while True:
+                        clear()
+                        self.print_header()
+                        print()
+                        self.print_hands(self.session.player)
+                        print('\n')
+                        self.print_hands(self.session.dealer)
+                        print()
+
+                        if self.session.dealer.get_hand_value() >= self.session.player.get_hand_value():
+                            if self.session.dealer_busted():
+                                self.session.game_winner(1)
+                                print()
+                                print(f'DEALER BUSTED! {self.session.player.name} WINS!')
+                                print()
+                                sleep(2)
+                                break
+                            else:
+                                self.session.game_winner(2)
+                                print()
+                                print('DEALER WINS!')
+                                print()
+                                sleep(2)
+                                break
+                        
+                        print('Dealer picking card...')
+                        self.session.dealer.add_card(self.session.deck.deal_card())
+                        sleep(2)
+                        print()
+                    while True:
+                        play_again = input('Play again (y/n)? ')
+                        if play_again == 'Y' or play_again == 'y':
+                            break
+                        elif play_again == 'N' or play_again == 'n':
+                            clear()
+                            raise KeyboardInterrupt
+                        break    
+                    break
+            elif command == 'Q' or command == 'q':
+                clear()
+                raise KeyboardInterrupt
             else:
-                print('Please provide a valid input!')
-                sleep(1)
+                clear()
